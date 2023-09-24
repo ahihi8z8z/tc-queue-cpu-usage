@@ -1,4 +1,4 @@
-# Measure CPu usage of egress traffic shaping (tc qdisc htb and hfsc)
+# Measure CPU usage of egress traffic shaping (tc qdisc htb and hfsc)
 - Run mininet with 2 host
 ```
 sudo mn --custom=custom.py --topo mytopo,2
