@@ -17,7 +17,7 @@ fi
 make
 sudo make install
 
-OVS_DIR = $(pwd)
+OVS_DIR=$(pwd)
 cd ..
 
 OVN_REPO=${GIT_REPO:-https://github.com/ovn-org/ovn.git}
