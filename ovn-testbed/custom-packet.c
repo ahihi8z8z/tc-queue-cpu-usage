@@ -23,6 +23,12 @@ struct pseudo_header
 	u_int16_t tcp_length;
 };
 
+struct ip_option {
+    uint8_t kind;     // Option kind (8)
+    uint8_t length;   // Option length (10)
+    uint16_t value;   // Customize the timestamp value here
+};
+
 /*
 	Generic checksum calculation function
 */
@@ -71,8 +77,13 @@ int main (void)
 	//IP header
 	struct iphdr *iph = (struct iphdr *) datagram;
 	
+
+	// Ip option field
+	struct ip_option *opt = (struct ip_option *) (datagram + sizeof (struct iphdr));
+
 	//TCP header
-	struct tcphdr *tcph = (struct tcphdr *) (datagram + sizeof (struct ip));
+	struct tcphdr *tcph = (struct tcphdr *) (datagram + sizeof (struct iphdr));
+
 	struct sockaddr_in sin;
 	struct pseudo_header psh;
 	
@@ -81,15 +92,16 @@ int main (void)
 	strcpy(data , "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
 	
 	//some address resolution
-	strcpy(source_ip , "10.1.1.2");
+	strcpy(source_ip , "10.0.0.1");
 	sin.sin_family = AF_INET;
 	sin.sin_port = htons(80);
-	sin.sin_addr.s_addr = inet_addr ("10.1.1.3");
+	sin.sin_addr.s_addr = inet_addr ("10.0.0.2");
 	
 	//Fill in the IP Header
 	iph->ihl = 5;
 	iph->version = 4;
 	iph->tos = 0;
+        //iph->tot_len = sizeof (struct iphdr) + sizeof(struct ip_option) + sizeof (struct tcphdr) + strlen(data);
 	iph->tot_len = sizeof (struct iphdr) + sizeof (struct tcphdr) + strlen(data);
 	iph->id = 0xef49;	//Id of this packet
 	iph->frag_off = 0;
@@ -101,6 +113,10 @@ int main (void)
 	
 	//Ip checksum
 	iph->check = csum ((unsigned short *) datagram, iph->tot_len);
+
+	opt->kind = 222;
+	opt->length = 4;
+	opt->value = 0x1234;
 	
 	//TCP Header
 	tcph->source = htons (1234);
